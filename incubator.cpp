@@ -8,6 +8,7 @@
 #define LightLed
 #define GyverEncoderOn
 #define RTCLibrary
+#define ManualSetup //Закомментировать для использования INCUBATOR_PROGRAM prog[].
 // #define SerialDebug //Режим отлатки в Serial
 
 #ifdef LightLed
@@ -30,61 +31,64 @@
   #include <GyverEncoder.h>
 #endif
 
+#ifndef ManualSetup
+  //Цыплята
+  // const INCUBATOR_PROGRAM prog[] PROGMEM = {
+  //   //Темп, Влж, Вент, Вент. Дл., Пов.
+  //   {37.8, 60, 0, 0, 6}, //1
+  //   {37.8, 60, 0, 0, 6}, //2
+  //   {37.8, 60, 0, 0, 6}, //3
+  //   {37.8, 60, 0, 0, 6}, //4
+  //   {37.8, 60, 0, 0, 6}, //5
+  //   {37.8, 55, 0, 0, 6}, //6
+  //   {37.8, 55, 0, 0, 6}, //7
+  //   {37.8, 55, 0, 0, 6}, //8
+  //   {37.8, 55, 0, 0, 6}, //9
+  //   {37.8, 50, 0, 0, 6}, //10
+  //   {37.8, 50, 0, 0, 6}, //11
+  //   {37.8, 50, 0, 0, 6}, //12
+  //   {37.8, 50, 0, 0, 6}, //13
+  //   {37.8, 50, 0, 0, 6}, //14
+  //   {37.8, 45, 2, 900, 6}, //15
+  //   {37.8, 45, 2, 900, 6}, //16
+  //   {37.8, 45, 2, 900, 6}, //17
+  //   {37.8, 45, 2, 900, 6}, //18
+  //   {37.5, 75, 2, 600, 0}, //19
+  //   {37.5, 75, 2, 600, 0}, //20
+  //   {37.5, 75, 2, 600, 0} //21
+  // };
 
-// const INCUBATOR_PROGRAM chickens[] PROGMEM = {
-//   //Темп, Влж, Вент, Вент. Дл., Пов.
-//   {37.8, 60, 0, 0, 6}, //1
-//   {37.8, 60, 0, 0, 6}, //2
-//   {37.8, 60, 0, 0, 6}, //3
-//   {37.8, 60, 0, 0, 6}, //4
-//   {37.8, 60, 0, 0, 6}, //5
-//   {37.8, 55, 0, 0, 6}, //6
-//   {37.8, 55, 0, 0, 6}, //7
-//   {37.8, 55, 0, 0, 6}, //8
-//   {37.8, 55, 0, 0, 6}, //9
-//   {37.8, 50, 0, 0, 6}, //10
-//   {37.8, 50, 0, 0, 6}, //11
-//   {37.8, 50, 0, 0, 6}, //12
-//   {37.8, 50, 0, 0, 6}, //13
-//   {37.8, 50, 0, 0, 6}, //14
-//   {37.8, 45, 2, 900, 6}, //15
-//   {37.8, 45, 2, 900, 6}, //16
-//   {37.8, 45, 2, 900, 6}, //17
-//   {37.8, 45, 2, 900, 6}, //18
-//   {37.5, 75, 2, 600, 0}, //19
-//   {37.5, 75, 2, 600, 0}, //20
-//   {37.5, 75, 2, 600, 0} //21
-// };
-
-// const INCUBATOR_PROGRAM chickens[] PROGMEM = {
-//   //Темп, Влж, Вент, Вент. Дл., Пов.
-//   {38.0, 70, 0, 0, 6}, //1 0
-//   {38.0, 70, 0, 0, 6}, //2 1
-//   {38.0, 70, 0, 0, 6}, //3 2
-//   {38.0, 70, 0, 0, 6}, //4 3
-//   {38.0, 70, 0, 0, 6}, //5 4
-//   {38.0, 70, 0, 0, 6}, //6 5
-//   {38.0, 70, 0, 0, 6}, //7 6 
-//   {37.8, 60, 0, 0, 6}, //8 7
-//   {37.8, 60, 0, 0, 6}, //9 8 
-//   {37.8, 60, 0, 0, 6}, //10 9
-//   {37.8, 60, 0, 0, 6}, //11 10
-//   {37.8, 60, 0, 0, 6}, //12 11 
-//   {37.8, 60, 0, 0, 6}, //13 12
-//   {37.8, 60, 0, 0, 6}, //14 13
-//   {37.8, 60, 2, 900, 6}, //15 14
-//   {37.8, 60, 2, 900, 6}, //16 15
-//   {37.8, 60, 2, 900, 6}, //17 16
-//   {37.8, 60, 2, 900, 6}, //18 17 
-//   {37.8, 60, 2, 900, 6}, //19 18
-//   {37.8, 60, 2, 900, 6}, //20 19
-//   {37.8, 60, 2, 900, 6}, //21 20 
-//   {37.8, 60, 2, 900, 6}, //22 21
-//   {37.8, 60, 2, 900, 6}, //23 22
-//   {37.8, 60, 2, 900, 6}, //24 23
-//   {37.8, 60, 2, 900, 6}, //25 24
-//   {37.5, 90, 0, 0, 0} //26 25
-// };
+  //Утята
+  // const INCUBATOR_PROGRAM prog[] PROGMEM = {
+  //   //Темп, Влж, Вент, Вент. Дл., Пов.
+  //   {38.0, 70, 0, 0, 6}, //1 0
+  //   {38.0, 70, 0, 0, 6}, //2 1
+  //   {38.0, 70, 0, 0, 6}, //3 2
+  //   {38.0, 70, 0, 0, 6}, //4 3
+  //   {38.0, 70, 0, 0, 6}, //5 4
+  //   {38.0, 70, 0, 0, 6}, //6 5
+  //   {38.0, 70, 0, 0, 6}, //7 6 
+  //   {37.8, 60, 0, 0, 6}, //8 7
+  //   {37.8, 60, 0, 0, 6}, //9 8 
+  //   {37.8, 60, 0, 0, 6}, //10 9
+  //   {37.8, 60, 0, 0, 6}, //11 10
+  //   {37.8, 60, 0, 0, 6}, //12 11 
+  //   {37.8, 60, 0, 0, 6}, //13 12
+  //   {37.8, 60, 0, 0, 6}, //14 13
+  //   {37.8, 60, 2, 900, 6}, //15 14
+  //   {37.8, 60, 2, 900, 6}, //16 15
+  //   {37.8, 60, 2, 900, 6}, //17 16
+  //   {37.8, 60, 2, 900, 6}, //18 17 
+  //   {37.8, 60, 2, 900, 6}, //19 18
+  //   {37.8, 60, 2, 900, 6}, //20 19
+  //   {37.8, 60, 2, 900, 6}, //21 20 
+  //   {37.8, 60, 2, 900, 6}, //22 21
+  //   {37.8, 60, 2, 900, 6}, //23 22
+  //   {37.8, 60, 2, 900, 6}, //24 23
+  //   {37.8, 60, 2, 900, 6}, //25 24
+  //   {37.5, 90, 0, 0, 0} //26 25
+  // };
+#endif
 
 
 //EEPROM
@@ -172,13 +176,14 @@ byte MoisturePercent = 0;
 float dayInc = 0;
 
 byte Blink = 0;
-byte Blink2 = 0;
 
 byte WaterError = 0;
 byte HeaterError = 0;
 byte HeaterBigError = 0;
 byte HumidityError = 0;
 
+byte rotateOn = 0; //Триггер для вращения яиц.
+byte ventingOn = 0; //Триггер на вентиляцию.
 
 //Инициализация модулей.
 SI7021 sensor;
@@ -272,7 +277,6 @@ unsigned long timeDayEEPROM() {
 void RotateServo(byte dir) {
   byte RotateSpeed = 17;
   int p = 400; //Мс обороты.
-
   float massKg = KGServo; //Масса яиц (КГ).
   float servoForce = 9.4; //Пусковой момент серво (КГ).
   float servoDegressAtMs = p/RotateSpeed; //За сколько мс серво делает передвижение на 1 градус.
@@ -291,10 +295,6 @@ void RotateServo(byte dir) {
     downServo.write(90);
   }
 }
-
-
-byte rotateOn = 0; //Триггер для вращения яиц.
-byte ventingOn = 0;
 
 
 void ledChangeColor(byte Red, byte Green, byte Blue) {
@@ -328,7 +328,6 @@ void startupSequance() {
 
   //Инициализируем все пины.
   pinMode(13, OUTPUT);
-  // pinMode(3, OUTPUT);
   pinMode((byte)pgm_read_byte(&P_ReleySiren), OUTPUT);
   pinMode((byte)pgm_read_byte(&P_ReleyVenting), OUTPUT);
   pinMode((byte)pgm_read_byte(&P_ReleyHumidity), OUTPUT);
@@ -336,14 +335,13 @@ void startupSequance() {
   pinMode(P_Moisture, INPUT); //Датчик воды.
   pinMode(P_Light, INPUT); //Датчик света.
   
-  offRelays();
+  offRelays(); //Переводим реле в отключённое состояние.
 
   delay(100);
   BlueL = 56;
   ledChangeColor(124, 124, BlueL);
   Serial.begin(9600); //Соединяемся с serial портом компьютера.
   sensor.begin(); //Подключаем наш датчик температуры/влаги.
-  
   
   downServo.attach((byte)pgm_read_byte(&P_Servo));
 
@@ -520,15 +518,6 @@ void encoderHandler() {
       else if (menu == 1) {
         //Тестирование.
         if (mode == 0) {
-          //Прогревка
-          if (cursorPosition == 1) {
-            if (manualEnable == 0) {
-              //Запускаем прогрев.
-            } else {
-              //Уже включён режим.
-              
-            }
-          }
           //Включение/выключение.
           else if (cursorPosition == 2) {
             if (manualEnable == 0) {
@@ -565,7 +554,6 @@ void encoderHandler() {
                 updateIncubateInfo();
               }
             }
-
           }
           else if (cursorPosition == 2) {
             if (autoEnable == 0 && IncubateTime != 0) {
@@ -579,7 +567,6 @@ void encoderHandler() {
       else if (menu == 3) {
         testCategory(); //Меню тестирования.
       }
-      
     } else if (enc.isDouble()) {
       if (menu != 0) {
         cursorPosition = menu;
@@ -715,26 +702,38 @@ void defaultDisplay() {
       // if (kday >= 26) {
       //   kday = 26;
       // }
-      float tmpr = 37.8;
-      byte humdt = 70;
-      if (kday < 7) {
-        tmpr = 38.0;
-        humdt = 70;
-      } else if (kday < 25) {
-        tmpr = 37.8;
-        humdt = 60;
-      } else {
-        tmpr = 37.5;
-        humdt = 90;
-      }
+      #ifdef ManualControl
+        float tmpr = 37.8;
+        byte humdt = 70;
+        if (kday < 7) {
+          tmpr = 38.0;
+          humdt = 70;
+        } else if (kday < 25) {
+          tmpr = 37.8;
+          humdt = 60;
+        } else {
+          tmpr = 37.5;
+          humdt = 90;
+        }
+      #endif
       display.print(F("Auto"));
 
       display.setCursor(100, 15);
-      display.print((float)tmpr, 1);
-      // display.print((float)pgm_read_float(&chickens[kday].temperature), 1);
+
+      #ifdef ManualControl
+        display.print((float)tmpr, 1);
+      #else
+        display.print((float)pgm_read_float(&prog[kday].temperature), 1);
+      #endif
+
       display.setCursor(105, 25);
-      display.print((byte)humdt);
-      // display.print((byte)pgm_read_byte(&chickens[kday].humidity));
+
+      #ifdef ManualControl
+        display.print((byte)humdt);
+      #else
+        display.print((byte)pgm_read_byte(&prog[kday].humidity));
+      #endif
+
       display.print(F("%"));
     } else {
       display.print(F("Stop"));
@@ -797,9 +796,7 @@ void drawMenuDisplay() {
     //Тут мы проверяем с помощью if режим и в зависимости от него выводим пункты.
     if (mode == 0) {
       display.print(utf8rus(F("ручной")));
-
       display.setCursor(10, 20);
-      // display.print(utf8rus(F("Прогреть")));
 
       if (manualEnable == 0) {
         display.print(utf8rus(F("Включить")));
@@ -1047,55 +1044,58 @@ void newDrobedTime(byte RotateCount, byte VentCount, unsigned long VentTime, uns
   }
 }
 
-void getRezhimeManual() {
-  byte day = dayIncubationInt();
+#ifdef ManualControl
+  void getRezhimeManual() {
+    byte day = dayIncubationInt();
 
-  float temperature = 37.8;
-  byte humidity = 70;
-  byte venting = 0;
-  int ventingTime = 0;
-  byte rotateCount = 0;
+    float temperature = 37.8;
+    byte humidity = 70;
+    byte venting = 0;
+    int ventingTime = 0;
+    byte rotateCount = 0;
 
-  // Температурный режим и влага.
-  if (day < 7) {
-    temperature = 38.0;
-    humidity = 70;
-  } else if (day < 25) {
-    temperature = 37.8;
-    humidity = 60;
-  } else {
-    temperature = 37.5;
-    humidity = 90;
+    // Температурный режим и влага.
+    if (day < 7) {
+      temperature = 38.0;
+      humidity = 70;
+    } else if (day < 25) {
+      temperature = 37.8;
+      humidity = 60;
+    } else {
+      temperature = 37.5;
+      humidity = 90;
+    }
+
+    //Вентиляция.
+    if (day >= 14 && day < 25) {
+      ventingTime = 900;
+      venting = 2;
+    }
+
+    // Для вращения яиц.
+    if (day < 25) {
+      rotateCount = 6;
+    }
+
+    newDrobedTime((int)rotateCount, (int)venting, (int)ventingTime, timeDayEEPROM());
+    controlIncubator((float)temperature, (byte)humidity);
   }
+#endif
 
-  //Вентиляция.
-  if (day >= 14 && day < 25) {
-    ventingTime = 900;
-    venting = 2;
-  }
+void rezhime() {
+  #ifdef ManualControl
+    getRezhimeManual();
+  #else
+    byte day = dayIncubationInt(); //День инкубации.
+    byte kday = day;
+    if (kday >= 26) {
+      kday = 26;
+    }
 
-  // Для вращения яиц.
-  if (day < 25) {
-    rotateCount = 6;
-  }
-
-  newDrobedTime((int)rotateCount, (int)venting, (int)ventingTime, timeDayEEPROM());
-  controlIncubator((float)temperature, (byte)humidity);
+    newDrobedTime((int)pgm_read_word(&prog[kday].rotateCount), (int)pgm_read_word(&prog[kday].ventingCount), (int)pgm_read_word(&prog[kday].ventingTime), timeDayEEPROM());
+    controlIncubator((float)pgm_read_float(&prog[kday].temperature), (byte)pgm_read_byte(&prog[kday].humidity));
+  #endif
 }
-
-void chickenRezhime() {
-  getRezhimeManual();
-  // byte day = dayIncubationInt(); //День инкубации.
-  // byte kday = day;
-  // if (kday >= 26) {
-  //   kday = 26;
-  // }
-
-  // newDrobedTime((int)pgm_read_word(&chickens[kday].rotateCount), (int)pgm_read_word(&chickens[kday].ventingCount), (int)pgm_read_word(&chickens[kday].ventingTime), timeDayEEPROM());
-  // controlIncubator((float)pgm_read_float(&chickens[kday].temperature), (byte)pgm_read_byte(&chickens[kday].humidity));
-}
-
-
 
 void loop() {
   #ifdef GyverEncoderOn
@@ -1130,7 +1130,7 @@ void loop() {
       controlIncubator(ManualTemp, ManualHum);
     }
     else if (mode == 1 && autoEnable == 1) {
-      chickenRezhime();
+      rezhime();
     }
   }
 
