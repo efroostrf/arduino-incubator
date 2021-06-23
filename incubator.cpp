@@ -1,29 +1,16 @@
 #include <SPI.h>
 #include <Servo.h> //Подключаем библиотеку для управление сервоприводом.
 #include <EEPROM.h> //Библиотека для хранения переменных.
-// #include <Adafruit_Si7021.h> //Библиотека для получения данных с датчика температуры и влажности.
-#include <SI7021.h>
+#include <SI7021.h> //Библиотека для SI7021 датчика температуры и влаги.
 #include <avr/wdt.h> //Wathdog
-// #include <SD.h> 
-// File root;
 
-
-// #define SerialWifiESP
 #define AdafruitDisplay
-// #define LightWeightDisplay
-// #define NeopixelLed
 #define LightLed
 #define GyverEncoderOn
-// #define WifiStuff
 #define RTCLibrary
-
-#ifdef SerialWifiESP
-  #include "SoftwareSerial.h"
-#endif
 
 #ifdef LightLed
   #include <WS2812.h>
-
   WS2812 LED(1); // 1 LED	
   cRGB colorLed;
 #endif
@@ -37,132 +24,12 @@
   #include <Adafruit_SSD1306.h>
 #endif
 
-#ifdef LightWeightDisplay
-  #include <Cytron_SSD1306.h>
-#endif
-
-#ifdef NeopixelLed
-  #include <Adafruit_NeoPixel.h>
-#endif
 
 #ifdef GyverEncoderOn
   #include <GyverEncoder.h>
 #endif
 
-#ifdef WifiStuff
-  #include <WiFi.h>
-  // const char server[] PROGMEM = "www.google.com"; 
 
-  // WiFiClient client;
-  #include <BlynkSimpleWifi.h>
-  // #include <ESP8266WiFi.h>
-  char auth[] = "DJuOcFgkYFQHOfwuIEsbaDnfX4n1QjdG";
-  const char ssid[] PROGMEM = "Protected0x445";
-  const char pass[] PROGMEM = "^DEzQ2Mpnq";
-#endif
-
-//EEPROM
-//0 - Адрес для времени начала инкубации.
-//1 - Статус инкубации (0/1).
-//5 - Кг для серво.
-unsigned long IncubateTime = EEPROM.read(1);
-byte IncubateStatus = EEPROM.read(0);
-float KGServo = EEPROM.read(5);
-
-
-//Цифровые пины.
-const byte P_LED = 8; //Светодиод.
-const byte P_Servo  PROGMEM= 9; //Сервомашинка.
-const byte P_EncoderCLK = 10; //CLK Энкодера.
-const byte P_EncoderDT = 11; //DT Энкодера.
-const byte P_EncoderSW = 12; //SW Энкодера.
-const byte P_ReleyHeater PROGMEM = 5; //Реле нагревательного элемента (лампы).
-const byte P_ReleyHumidity PROGMEM = 4; //Реле для контроля влажности.
-const byte P_ReleyVenting PROGMEM = 3; //Реле для контроля проветривания.
-const byte P_ReleySiren PROGMEM = 2; //Реле для звуковой сирены.
-
-//Аналоговые пины.
-const byte P_Moisture = A0; //Датчик заполнености ёмкости водой.
-const byte P_Light = A1; //Датчик света.
-
-
-//Цвета светодиода.
-byte RedL = 0;
-byte GreenL = 0;
-byte BlueL = 0;
-
-//Системные переменные.
-const byte displayTimeout PROGMEM = 60;
-byte secondsDisplay = displayTimeout;
-byte mode;
-byte menu = 0; //Включённое меню.
-byte cursorPosition = 0;
-byte Warning = 0; //Мигающий жёлтый индикатор.
-byte WarningState = 0; //Положение индикатора.
-byte Error = 0; //Мигающий красный индикатор.
-byte ErrorState = 0; //Положение красного индикатора.
-byte Siren = 0; //Включена сирена или нет.
-byte systemEvent = 0; //События в "системе".
-//0 - Нормальная работа.
-//1
-
-//Переменные для модулей.
-byte SirenState = 0;
-byte HeaterState = 0;
-byte HumidityState = 0;
-byte VentingState = 0;
-
-//mode
-//0 - Установлена пауза, инкубатор не работает (режим для тестирования).
-//1 - Автоматический режим.
-
-byte autoEnable; //Состояние включённое инкубации.
-
-//Переменные ручного инкубирования
-byte manualEnable = 0;
-float ManualTemp = 37.5;
-byte ManualHum = 60;
-byte ManualRotate = 0;
-byte ManualVenting = 0;
-
-//Всплывающее окно
-byte Popup = 0;
-
-int TimeoutSensors = 1000;
-int TimeoutOperations = 1000;
-unsigned long now_time;
-unsigned long alertBlink = millis() + 1000;
-unsigned long timeoutSensors = millis() + TimeoutSensors;
-unsigned long systemOperations = millis() + TimeoutOperations;
-unsigned long stopVenting = 0;
-unsigned long resetVenting = 0;
-unsigned long resetRotate =0;
-unsigned long closePopup = 0;
-unsigned long TimeSecond = 0;
-
-float Temperature = 0;
-byte Humidity = 0;
-int Moisture = 0;
-int Light = 0;
-byte MoisturePercent = 0;
-float dayInc = 0;
-
-byte Blink = 0;
-byte Blink2 = 0;
-
-byte WaterError = 0;
-byte HeaterError = 0;
-byte HeaterBigError = 0;
-byte HumidityError = 0;
-
-struct INCUBATOR_PROGRAM {
-  float temperature; //Температура
-  byte humidity; //Влажность
-  int ventingCount; //Количество вентиляций
-  int ventingTime; //Длительность каждой вентиляции
-  int rotateCount; //Количество переворотов
-};
-  
 // const INCUBATOR_PROGRAM chickens[] PROGMEM = {
 //   //Темп, Влж, Вент, Вент. Дл., Пов.
 //   {37.8, 60, 0, 0, 6}, //1
@@ -216,14 +83,103 @@ struct INCUBATOR_PROGRAM {
 //   {37.8, 60, 2, 900, 6}, //24 23
 //   {37.8, 60, 2, 900, 6}, //25 24
 //   {37.5, 90, 0, 0, 0} //26 25
-
 // };
 
-// const char popupTexts[] PROGMEM = {"Поставьте инкубацию на паузу!"};
+
+//EEPROM
+//0 - Адрес для времени начала инкубации.
+//1 - Статус инкубации (0/1).
+//5 - Кг для серво.
+unsigned long IncubateTime = EEPROM.read(1);
+byte IncubateStatus = EEPROM.read(0);
+float KGServo = EEPROM.read(5);
+
+
+//Цифровые пины.
+const byte P_LED = 8; //Светодиод.
+const byte P_Servo  PROGMEM= 9; //Сервомашинка.
+const byte P_EncoderCLK = 10; //CLK Энкодера.
+const byte P_EncoderDT = 11; //DT Энкодера.
+const byte P_EncoderSW = 12; //SW Энкодера.
+const byte P_ReleyHeater PROGMEM = 5; //Реле нагревательного элемента (лампы).
+const byte P_ReleyHumidity PROGMEM = 4; //Реле для контроля влажности.
+const byte P_ReleyVenting PROGMEM = 3; //Реле для контроля проветривания.
+const byte P_ReleySiren PROGMEM = 2; //Реле для звуковой сирены.
+
+//Аналоговые пины.
+const byte P_Moisture = A0; //Датчик заполнености ёмкости водой.
+const byte P_Light = A1; //Датчик света.
+
+
+//Цвета светодиода.
+byte RedL = 0;
+byte GreenL = 0;
+byte BlueL = 0;
+
+//Системные переменные.
+const byte displayTimeout PROGMEM = 60;
+byte secondsDisplay = displayTimeout;
+byte mode;
+byte menu = 0; //Включённое меню.
+byte cursorPosition = 0;
+byte Warning = 0; //Мигающий жёлтый индикатор.
+byte WarningState = 0; //Положение индикатора.
+byte Error = 0; //Мигающий красный индикатор.
+byte ErrorState = 0; //Положение красного индикатора.
+byte Siren = 0; //Включена сирена или нет.
+byte systemEvent = 0; //События в "системе".
+
+//Переменные для модулей.
+byte SirenState = 0;
+byte HeaterState = 0;
+byte HumidityState = 0;
+byte VentingState = 0;
+
+//mode
+//0 - Установлена пауза, инкубатор не работает (режим для тестирования).
+//1 - Автоматический режим.
+
+byte autoEnable; //Состояние включённое инкубации.
+
+//Переменные ручного инкубирования
+byte manualEnable = 0;
+float ManualTemp = 37.5;
+byte ManualHum = 60;
+byte ManualRotate = 0;
+byte ManualVenting = 0;
+
+//Всплывающее окно
+byte Popup = 0;
+
+int TimeoutSensors = 1000;
+int TimeoutOperations = 1000;
+unsigned long now_time;
+unsigned long alertBlink = millis() + 1000;
+unsigned long timeoutSensors = millis() + TimeoutSensors;
+unsigned long systemOperations = millis() + TimeoutOperations;
+unsigned long stopVenting = 0;
+unsigned long resetVenting = 0;
+unsigned long resetRotate =0;
+unsigned long closePopup = 0;
+unsigned long TimeSecond = 0;
+
+float Temperature = 0;
+byte Humidity = 0;
+int Moisture = 0;
+int Light = 0;
+byte MoisturePercent = 0;
+float dayInc = 0;
+
+byte Blink = 0;
+byte Blink2 = 0;
+
+byte WaterError = 0;
+byte HeaterError = 0;
+byte HeaterBigError = 0;
+byte HumidityError = 0;
 
 
 //Инициализация модулей.
-// Adafruit_Si7021 sensor = Adafruit_Si7021();
 SI7021 sensor;
 Servo downServo;
 
@@ -235,22 +191,12 @@ Servo downServo;
   Encoder enc(P_EncoderCLK, P_EncoderDT, P_EncoderSW);
 #endif
 
-#ifdef NeopixelLed
-  Adafruit_NeoPixel ledScreen (1, P_LED, NEO_GRB + NEO_KHZ800);
-#endif
-
 #ifdef AdafruitDisplay
   Adafruit_SSD1306 display(128, 64, &Wire, -1);
 #endif
 
-#ifdef LightWeightDisplay
-  Cytron_SSD1306 display;
-#endif
-
-
 /* Функция перекодировки русских букв из UTF-8 в Win-1251 */
-String utf8rus(String source)
-{
+String utf8rus(String source) {
   int i,k;
   String target;
   unsigned char n;
@@ -279,14 +225,7 @@ String utf8rus(String source)
   return target;
 }
 
-// void showPopup(byte codePopup, unsigned long Time) {
-//   Popup = codePopup;
-//   closePopup = millis() + (Time*1000);
-// }
-
 void updateIncubateInfo() {
-  // IncubateTime = EEPROM.read(0);
-  // IncubateStatus = EEPROM.read(1);
   EEPROM.get(0, IncubateStatus);
   EEPROM.get(1, IncubateTime);
   EEPROM.get(5, KGServo);
@@ -354,7 +293,6 @@ void RotateServo(byte dir) {
     delay(servoDegressAtMs*80);
     downServo.write(90);
   }
-
 }
 
 
@@ -363,11 +301,6 @@ byte ventingOn = 0;
 
 
 void ledChangeColor(byte Red, byte Green, byte Blue) {
-  #ifdef NeopixelLed
-    ledScreen.setPixelColor(0, ledScreen.Color(Red, Green, Blue));
-    ledScreen.show();
-  #endif
-
   #ifdef LightLed
     colorLed.b = Red; colorLed.g = Green; colorLed.r = Blue;
 	  LED.set_crgb_at(0, colorLed);
@@ -390,11 +323,6 @@ void offRelays() {
 }
 
 void startupSequance() {
-  #ifdef NeopixelLed
-    ledScreen.begin(); //Подключаем светодиод.
-    ledScreen.setBrightness(50); //Яркость светодиода.
-  #endif
-
   #ifdef LightLed
     LED.setOutput(P_LED);
   #endif
@@ -433,20 +361,13 @@ void startupSequance() {
 
   #ifdef AdafruitDisplay
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //Инициализируем дисплей.
-    //Ниже настройки для дисплея.
     display.setTextColor(WHITE); //Цвет текста.
     display.cp437(true);
     display.clearDisplay();
   #endif
-
-  #ifdef LightWeightDisplay
-    display.begin();
-  #endif
   
   delay(100);
   ledChangeColor(0, 0, BlueL);
-
-  // Serial.println(F("Temperature Humidity Water RelayHeater RelayHumidity RelaySiren RelayVenting"));
 }
 
 
@@ -498,8 +419,8 @@ void setup() {
   // Просто напиши код для инициализации тут:
   delay(1000);
   startupSequance();
-
   updateIncubateInfo();
+
   if (IncubateStatus == 1) {
     mode = 1;
     autoEnable = 1;
@@ -510,17 +431,6 @@ void setup() {
     mode = 0;
   }
   readSensors();
-  // Serial.println(F("begin"));
-
-  #ifdef WifiStuff
-    // WiFi.begin(pgm_read_word(&ssid), pgm_read_word(&pass));
-    Blynk.begin(auth, pgm_read_word(&ssid), pgm_read_word(&pass));
-  #endif
-  #ifdef SerialWifiESP
-    SoftwareSerial esp(6, 7);
-    esp.begin(9600);
-  #endif
-
   wdt_enable (WDTO_8S); //Watchdog на мониторинг зависания платы.
 }
 
@@ -601,8 +511,7 @@ void encoderHandler() {
         if (cursorPosition > 0) {
           cursorPosition--;
         }
-      }
-      
+      }     
     }
     if (enc.isFastL()) {
       if (menu == 2 && cursorPosition == 0) {
@@ -652,11 +561,12 @@ void encoderHandler() {
               } else {
                 //Запустить.
                 autoEnable = 1;
+
                 #ifdef RTCLibrary
                   DateTime now = rtc.now();
                   EEPROM.put(1, now.unixtime());
-                  
                 #endif
+
                 EEPROM.put(0, 1);
                 updateIncubateInfo();
               }
@@ -667,18 +577,13 @@ void encoderHandler() {
             if (autoEnable == 0 && IncubateTime != 0) {
                 IncubateTime = 0;
                 EEPROM.put(1, IncubateTime);
-                // EEPROM.put(0, 0);
                 updateIncubateInfo();
             }
           }
         }
       }
       else if (menu == 3) {
-        //Меню тестирования.
-        testCategory();
-        // if (mode == 0) {
-          
-        // }
+        testCategory(); //Меню тестирования.
       }
       
     } else if (enc.isDouble()) {
@@ -734,8 +639,6 @@ void encoderHandler() {
       }
       if (menu == 3 && cursorPosition == 4) {
         RotateServo(1);
-      } else {
-        // showPopup(0, 10);
       }
 
       if (menu == 2 && cursorPosition == 0) {
@@ -756,8 +659,6 @@ void encoderHandler() {
   }
 }
 
-
-
 boolean statusLight() {
   if (analogRead(P_Light) < 400) {
     return true;
@@ -766,12 +667,7 @@ boolean statusLight() {
   }
 }
 
-
-
 void defaultDisplay() {
-  // #ifdef AdafruitDisplay
-
-  // #endif
   display.setCursor(5, 5);
   #ifdef AdafruitDisplay
     display.setTextSize(2);
@@ -785,8 +681,6 @@ void defaultDisplay() {
     display.drawLine(5, 24, 74, 24, WHITE);
   #endif
 
-  
-  
   display.setCursor(5, 30);
   display.print(Humidity, 1);
   display.print(F("%"));
@@ -848,7 +742,6 @@ void defaultDisplay() {
       display.print((byte)humdt);
       // display.print((byte)pgm_read_byte(&chickens[kday].humidity));
       display.print(F("%"));
-
     } else {
       display.print(F("Stop"));
     }
@@ -865,9 +758,6 @@ void defaultDisplay() {
       display.print(F("Stop"));
     }
   }
-
-
-  
 }
 
 void drawCursorDisplay(byte i) {
@@ -956,7 +846,6 @@ void drawMenuDisplay() {
       if (autoEnable == 0) {
         if (IncubateTime != 0) {
           display.print(utf8rus(F("Возобновить")));
-          
           display.setCursor(10, 20);
           display.print(utf8rus(F("Остановить")));
         } else {
@@ -966,8 +855,6 @@ void drawMenuDisplay() {
         display.print(utf8rus(F("Пауза")));
       }
       
-      
-
       // display.setCursor(10, 20);
       // display.print(IncubateTime);
       // display.print(F(" "));
@@ -1036,7 +923,6 @@ void checkSensors() {
 }
 
 void controlIncubator(float Temp, byte Hum) {
-
   float TempHesterezis = 0.15; //Допустимое отклонение температуры.
   byte HumHesterezis = 1; //Допустимое отклонение влажности.
 
@@ -1120,8 +1006,6 @@ void controlIncubator(float Temp, byte Hum) {
     digitalWrite((byte)pgm_read_byte(&P_ReleyHumidity), HIGH);
     HumidityState = 0;
   }
-
-
 }
 
 void newDrobedTime(byte RotateCount, byte VentCount, unsigned long VentTime, unsigned long time) {
@@ -1167,7 +1051,6 @@ void newDrobedTime(byte RotateCount, byte VentCount, unsigned long VentTime, uns
       }
     }
   }
-  
 }
 
 void getRezhimeManual() {
@@ -1202,17 +1085,6 @@ void getRezhimeManual() {
     rotateCount = 6;
   }
 
-  // if (type == 0) {
-  //   return temperature;
-  // } else if (type == 1) {
-  //   return humidity;
-  // } else if (type == 2) {
-  //   return venting;
-  // } else if (type == 3) {
-  //   return ventingTime;
-  // } else if (type == 4) {
-  //   return rotateCount;
-  // }
   newDrobedTime((int)rotateCount, (int)venting, (int)ventingTime, timeDayEEPROM());
   controlIncubator((float)temperature, (byte)humidity);
 }
@@ -1224,8 +1096,6 @@ void chickenRezhime() {
   // if (kday >= 26) {
   //   kday = 26;
   // }
-
-
 
   // newDrobedTime((int)pgm_read_word(&chickens[kday].rotateCount), (int)pgm_read_word(&chickens[kday].ventingCount), (int)pgm_read_word(&chickens[kday].ventingTime), timeDayEEPROM());
   // controlIncubator((float)pgm_read_float(&chickens[kday].temperature), (byte)pgm_read_byte(&chickens[kday].humidity));
@@ -1270,15 +1140,10 @@ void loop() {
     else if (mode == 1 && autoEnable == 1) {
       chickenRezhime();
     }
-    // Blynk.virtualWrite(V0, millis());
-    // Serial.println(millis());
   }
-
-
 
   now_time = millis();
   if (now_time >= systemOperations) {
-    // Serial.println(freeRam());
     if (Warning == 1 || HeaterError == 1) {
       GreenL = 0;
       if (WarningState == 0) {
@@ -1335,7 +1200,6 @@ void loop() {
       }
     }
     
-
     ledChangeColor(RedL, GreenL, BlueL);
     systemOperations = now_time + TimeoutOperations;
     TimeSecond++;
@@ -1348,7 +1212,6 @@ void loop() {
     digitalWrite((byte)pgm_read_byte(&P_ReleyVenting), HIGH);
     VentingState = 0;
     stopVenting = millis()*100;
-    // Serial.println(F("Stop vent"));
   }
   
   if (now_time >= resetRotate && (autoEnable == 1 || manualEnable == 1)) { rotateOn = 0; resetRotate = millis()*100; }
@@ -1361,13 +1224,7 @@ void loop() {
   #ifdef AdafruitDisplay
     display.clearDisplay();
   #endif
-
-  #ifdef LightWeightDisplay
-    display.clear();
-  #endif 
   
-
-
   if (secondsDisplay > 0) {
     if (Popup != 0) {
       // display.setTextSize(0);
