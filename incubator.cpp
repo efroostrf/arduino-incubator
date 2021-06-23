@@ -8,6 +8,7 @@
 #define LightLed
 #define GyverEncoderOn
 #define RTCLibrary
+// #define SerialDebug //Режим отлатки в Serial
 
 #ifdef LightLed
   #include <WS2812.h>
@@ -265,10 +266,6 @@ unsigned long timeDayEEPROM() {
   }
   
   unsigned long result = 86400 * days;
-  // Serial.print(F("RES: "));
-  // Serial.println(result);
-  // Serial.print(F("days: "));
-  // Serial.println(days);
   return result;
 }
 
@@ -380,9 +377,6 @@ int dayIncubationInt() {
 
   unsigned long res = (unsigned long)unixnow - (unsigned long)IncubateTime;
   unsigned long days = (unsigned long)res / (unsigned long)86400;
-  // Serial.println(unixnow);
-  // Serial.println(res);
-  // Serial.println(days);
   return (int)days;
 }
 
@@ -1115,23 +1109,21 @@ void loop() {
     timeoutSensors = now_time + TimeoutSensors;
     readSensors();
 
-    // if (Serial) {
-      // Serial.println(dayIncubationInt());
+    #ifdef SerialDebug
       Serial.print(Temperature);
       Serial.print(F(" "));
-      // Serial.println(Humidity);
-      // Serial.print(F(" "));
-      // Serial.println(percentWater());
-    //   Serial.print(F(" "));
+      Serial.println(Humidity);
+      Serial.print(F(" "));
+      Serial.println(percentWater());
+      Serial.print(F(" "));
       Serial.println(HeaterState*10);
-      // Serial.print(F(" "));
-      // Serial.print(HumidityState*10);
-      // Serial.print(F(" "));
-      // Serial.println(SirenState*10);
-      // Serial.print(F(" "));
-      // Serial.println(VentingState*10);
-    // }
-
+      Serial.print(F(" "));
+      Serial.print(HumidityState*10);
+      Serial.print(F(" "));
+      Serial.println(SirenState*10);
+      Serial.print(F(" "));
+      Serial.println(VentingState*10);
+    #endif
 
     if (mode == 0 && manualEnable == 1) {
       newDrobedTime(ManualRotate, ManualVenting, 300, timeDay());
