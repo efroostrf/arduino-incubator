@@ -147,7 +147,25 @@ void IncubatorController::_updateVenting() {
     settings->updateVentingToNow(); // Обновляем время начала вентилирования
   }
 
-  ventingRelay.status = settings->isNowVentingEnabled();
+  /*
+    Не допускаем глубокого охлаждения (ниже 28 градусов на яйце)
+    Просто отсекаем вентиляцию при таких низких значениях.
+
+    К слову, чтобы не потерять, нагрев до программных значений после вентиляции
+    не должен длиться дольше 30 МИНУТ, поэтому проверяйте это собственноручно.
+    Иными словами - обогрев после вентилирования должен быть быстрым.
+
+    TO DO
+    Сделано так "колхозно" на случай ЧП.
+    В реальности же при таком ЧП на пороге 29 градусов реле начнут плохо щёлкать,
+    поэтому нужно сделать выдержку по набору температуры после срабатывания ЧП.
+  */
+ 
+  if (sensors.temperature > 29.0) {
+    ventingRelay.status = settings->isNowVentingEnabled();
+  } else if (ventingRelay.status) {
+    ventingRelay.status = false;
+  }
 }
 
 void IncubatorController::_changeRelayState(RELAY relay, boolean state) {
