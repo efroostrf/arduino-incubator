@@ -97,6 +97,8 @@ void IncubatorController::loop() {
   //   _emergencyLightBuzzer.repeat();
   // }
   
+  if (ventingRelay.status) heaterRelay.status = false; // Если включена вентиляция - обогреватель выключается
+  
   _emergencyHandler();
   updateRelaySignals();
 }
